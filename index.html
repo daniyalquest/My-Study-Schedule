@@ -169,7 +169,6 @@
         <h3 class="font-medium mb-2 text-base">Key Assumptions & Notes:</h3>
         <ul class="list-disc list-inside space-y-1 mb-4">
           <li><strong>Lecture Conflicts:</strong> On Tuesdays, your MCM301 lecture (4:00 PM - 5:00 PM) conflicts with your "Other Diploma Classes" (3:00 PM - 5:00 PM). Diploma Classes are prioritized; you may need to watch recordings or review independently for MCM301.</li>
-          <li><strong>University Study Blocks:</strong> Use these for reviewing lecture material, working on assignments, or pre-reading for main university courses.</li>
           <li><strong>Breaks are Crucial:</strong> Short breaks (5-15 minutes) are built into the schedule. Take longer breaks when needed.</li>
           <li><strong>Flexibility:</strong> This is a template. Adjust it based on your energy levels, specific deadlines, and unforeseen circumstances. Consistency is more important than strict adherence.</li>
           <li><strong>Sleep:</strong> Aim for consistent sleep to maximize your learning and productivity.</li>
@@ -203,7 +202,7 @@
     const SCHEDULE_DATA = {
       Monday: [
         { time: '8:00 AM - 9:00 AM', description: 'Wake up, Breakfast, Review Day\'s Plan', type: 'Personal' },
-        { time: '9:00 AM - 11:00 AM', description: 'University Study Block (CS504 / MGT501 prep, assignment work)', type: 'University' },
+        
         { time: '11:00 AM - 12:00 PM', description: 'CS504 - Lec 33 (CDROOM-1)', type: 'University' },
         { time: '12:00 PM - 01:00 PM', description: 'MGT501 - Lec 33 (VUTV-1)', type: 'University' },
         { time: '01:00 PM - 02:00 PM', description: 'Lunch & Break', type: 'Personal' },
@@ -212,12 +211,12 @@
         { time: '05:00 PM - 06:00 PM', description: 'STA301 - Lec 33 (VUTV-4)', type: 'University' },
         { time: '06:00 PM - 08:00 PM', description: 'Coursera: Introduction to Social Media Marketing', type: 'Coursera', courseId: 'intro-smm' },
         { time: '08:00 PM - 09:00 PM', description: 'Dinner', type: 'Personal' },
-        { time: '09:00 PM - 10:00 PM', description: 'University Study Block (MCM301 / STA301 review)', type: 'University' },
+        
         { time: '10:00 PM onwards', description: 'Relax / Wind down', type: 'Personal' },
       ],
       Tuesday: [
         { time: '8:00 AM - 9:00 AM', description: 'Wake up, Breakfast, Review Day\'s Plan', type: 'Personal' },
-        { time: '9:00 AM - 11:00 AM', description: 'University Study Block (CS504 / MGT501 prep, assignment work)', type: 'University' },
+        
         { time: '11:00 AM - 12:00 PM', description: 'CS504 - Lec 34 (CDROOM-1)', type: 'University' },
         { time: '12:00 PM - 01:00 PM', description: 'MGT501 - Lec 34 (VUTV-1)', type: 'University' },
         { time: '01:00 PM - 02:00 PM', description: 'Lunch & Break', type: 'Personal' },
@@ -226,12 +225,12 @@
         { time: '05:00 PM - 06:00 PM', description: 'STA301 - Lec 34 (VUTV-4)', type: 'University' },
         { time: '06:00 PM - 08:00 PM', description: 'Coursera: MERN eCommerce from Scratch / Meta Social Media Marketing Professional Certificate (Post Intro SMM)', type: 'Coursera', courseId: ['mern-ecommerce', 'meta-smm'] },
         { time: '08:00 PM - 09:00 PM', description: 'Dinner', type: 'Personal' },
-        { time: '09:00 PM - 10:00 PM', description: 'University Study Block (STA301 review, catch up on MCM301)', type: 'University' },
+        
         { time: '10:00 PM onwards', description: 'Relax / Wind down', type: 'Personal' },
       ],
       Wednesday: [
         { time: '8:00 AM - 9:00 AM', description: 'Wake up, Breakfast, Review Day\'s Plan', type: 'Personal' },
-        { time: '9:00 AM - 11:00 AM', description: 'University Study Block (CS504 / MGT501 prep, assignment work)', type: 'University' },
+        
         { time: '11:00 AM - 12:00 PM', description: 'CS504 - Lec 35 (CDROOM-1)', type: 'University' },
         { time: '12:00 PM - 01:00 PM', description: 'MGT501 - Lec 35 (VUTV-1)', type: 'University' },
         { time: '01:00 PM - 02:00 PM', description: 'Lunch & Break', type: 'Personal' },
@@ -245,7 +244,7 @@
       ],
       Thursday: [
         { time: '8:00 AM - 9:00 AM', description: 'Wake up, Breakfast, Review Day\'s Plan', type: 'Personal' },
-        { time: '9:00 AM - 11:00 AM', description: 'University Study Block (catch up, review past lectures, assignments)', type: 'University' },
+        
         { time: '11:00 AM - 12:00 PM', description: 'Coursera: MERN eCommerce from Scratch', type: 'Coursera', courseId: 'mern-ecommerce' },
         { time: '12:00 PM - 01:00 PM', description: 'Coursera: Backend Development and API Creation', type: 'Coursera', courseId: 'backend-api' },
         { time: '01:00 PM - 02:00 PM', description: 'Lunch & Break', type: 'Personal' },
@@ -258,7 +257,7 @@
       ],
       Friday: [
         { time: '8:00 AM - 9:00 AM', description: 'Wake up, Breakfast, Review Day\'s Plan', type: 'Personal' },
-        { time: '9:00 AM - 10:00 AM', description: 'University Study Block (pre-read for next week, weekly review)', type: 'University' },
+        
         { time: '10:00 AM - 01:00 PM', description: 'Coursera: MERN Stack Specialization', type: 'Coursera', courseId: 'mern-stack' },
         { time: '01:00 PM - 02:00 PM', description: 'Lunch & Break', type: 'Personal' },
         { time: '02:00 PM - 04:00 PM', description: 'Coursera: Work Smarter with Microsoft Excel', type: 'Coursera', courseId: 'excel' },
@@ -267,10 +266,10 @@
       ],
       Saturday: [
         { time: '8:00 AM - 9:00 AM', description: 'Wake up, Breakfast, Review Day\'s Plan', type: 'Personal' },
-        { time: '9:00 AM - 10:00 AM', description: 'University Study Block (Weekly review, plan for upcoming week)', type: 'University' },
+        
         { time: '10:00 AM - 01:00 PM', description: 'Coursera: MERN Stack Specialization', type: 'Coursera', courseId: 'mern-stack' },
         { time: '01:00 PM - 02:00 PM', description: 'Lunch & Break', type: 'Personal' },
-        { time: '02:00 PM - 03:00 PM', description: 'University Study Block / Catch up', type: 'University' },
+        
         { time: '03:00 PM - 05:00 PM', description: 'Other Diploma Classes', type: 'Diploma' },
         { time: '05:00 PM - 07:00 PM', description: 'Coursera: MERN eCommerce from Scratch', type: 'Coursera', courseId: 'mern-ecommerce' },
         { time: '07:00 PM - 10:00 PM', description: 'Other Diploma Classes', type: 'Diploma' },
@@ -278,7 +277,7 @@
       ],
       Sunday: [
         { time: '8:00 AM - 9:00 AM', description: 'Wake up, Breakfast, Plan Day / Relax', type: 'Personal' },
-        { time: '9:00 AM - 10:00 AM', description: 'University Weekly Review / Prep for Monday', type: 'University' },
+        
         { time: '10:00 AM - 02:00 PM', description: 'Coursera: Introduction to Social Media Marketing', type: 'Coursera', courseId: 'intro-smm' },
         { time: '02:00 PM - 03:00 PM', description: 'Lunch & Break', type: 'Personal' },
         { time: '03:00 PM - 06:00 PM', description: 'Coursera: Meta Social Media Marketing Professional Certificate (Post Intro SMM)', type: 'Coursera', courseId: 'meta-smm' },
@@ -471,6 +470,11 @@
 
       SCHEDULE_DATA[day].forEach(item => {
         let isVisible = false;
+
+        // Filter out "University Study Block" if it's explicitly mentioned
+        if (item.description.includes('University Study Block')) {
+            return; // Skip this item entirely
+        }
 
         if (filter === 'All') {
           isVisible = true;
