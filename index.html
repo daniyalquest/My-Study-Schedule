@@ -25,6 +25,7 @@
             'success-green': '#A7F3D0',
             'info-blue': '#BFDBFE',
             'warning-yellow': '#FDE68A',
+            'task-completed': '#E2E8F0', /* Tailwind slate-200 */
           }
         }
       }
@@ -37,7 +38,7 @@
     /* Application Structure Plan: This SPA is designed with a dashboard-like structure to provide an intuitive overview and detailed daily breakdown of the user's study schedule. It features a main content area for the daily timetable and a dedicated sidebar for Coursera course tracking and a dynamic hour allocation chart. This structure was chosen to separate core scheduling (daily view) from analytical insights (Coursera progress), facilitating easy exploration. Users can navigate days via tabs, filter activities, and dynamically update the schedule by marking Coursera courses as complete, making the "phase" progression clear and interactive. */
     /* Visualization & Content Choices:
     - Weekly Coursera Hours Allocation: Goal: Inform, track progress. Viz: Donut Chart (Chart.js, Canvas) to show active course hour distribution, list of Coursera courses with checkboxes. Interaction: Checkboxes for "Introduction to Social Media Marketing" and "Work Smarter with Microsoft Excel" dynamically update the chart and relevant daily schedule entries to reflect course completion and the next "phase." Justification: Provides a quick, interactive visual summary of workload shifts.
-    - Daily Schedule Breakdown: Goal: Organize, inform. Viz: HTML lists within tabbed sections. Interaction: Day-selection buttons to switch views; filter buttons (All, University, Coursera, Diploma) to focus on specific activity types. Justification: Clear, time-ordered presentation with efficient navigation and focused viewing.
+    - Daily Schedule Breakdown: Goal: Organize, inform. Viz: HTML lists within tabbed sections, with each item acting as a toggleable to-do task. Interaction: Day-selection buttons to switch views; filter buttons (All, University, Coursera, Diploma) to focus on specific activity types; checkboxes to mark tasks as complete. Justification: Clear, time-ordered presentation with efficient navigation and focused viewing, now enhanced with task management.
     - Key Notes/Tips: Goal: Inform. Viz: Collapsible HTML section. Interaction: Toggle button to expand/collapse. Justification: Provides important context without cluttering the main interface.
     - General UI: Goal: Engage, organize. Viz: Tailwind CSS for responsive grid/flex layouts, clean buttons, cards. Unicode characters for icons. Justification: Modern, responsive, and intuitive interface with a calming color scheme. */
     /* CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. */
@@ -85,7 +86,7 @@
       <div class="relative group">
         <span class="tooltip-icon">i</span>
         <div class="absolute right-0 mt-2 w-64 p-3 bg-white text-text-dark text-sm rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-50">
-          This application helps you manage your university lectures, diploma classes, and Coursera courses. Mark Coursera courses as complete to update your schedule and see workload shifts.
+          This application helps you manage your university lectures, diploma classes, and Coursera courses. Mark Coursera courses as complete to update your schedule and see workload shifts. You can also mark individual daily tasks as completed.
         </div>
       </div>
     </div>
@@ -124,7 +125,7 @@
     <section class="lg:col-span-2 bg-card-bg p-6 rounded-lg shadow-md flex flex-col">
       <h2 class="text-xl font-semibold mb-4 text-accent-dark">Daily Schedule</h2>
       <p class="mb-4 text-sm text-text-light">
-        Select a day to view its detailed schedule. Use the filters to focus on specific types of activities.
+        Select a day to view its detailed schedule. Use the filters to focus on specific types of activities. Mark tasks as complete using the checkboxes.
       </p>
 
       <!-- Day Navigation -->
@@ -199,10 +200,9 @@
       'meta-analytics': { name: 'Meta Marketing Analytics Professional Certificate', hours: 10, completed: false, type: 'Coursera Analytics', initialHours: 0, dependsOn: 'excel' },
     };
 
-    const SCHEDULE_DATA = {
+    const SCHEDULE_DATA_RAW = {
       Monday: [
         { time: '8:00 AM - 9:00 AM', description: 'Wake up, Breakfast, Review Day\'s Plan', type: 'Personal' },
-        
         { time: '11:00 AM - 12:00 PM', description: 'CS504 - Lec 33 (CDROOM-1)', type: 'University' },
         { time: '12:00 PM - 01:00 PM', description: 'MGT501 - Lec 33 (VUTV-1)', type: 'University' },
         { time: '01:00 PM - 02:00 PM', description: 'Lunch & Break', type: 'Personal' },
@@ -211,12 +211,10 @@
         { time: '05:00 PM - 06:00 PM', description: 'STA301 - Lec 33 (VUTV-4)', type: 'University' },
         { time: '06:00 PM - 08:00 PM', description: 'Coursera: Introduction to Social Media Marketing', type: 'Coursera', courseId: 'intro-smm' },
         { time: '08:00 PM - 09:00 PM', description: 'Dinner', type: 'Personal' },
-        
         { time: '10:00 PM onwards', description: 'Relax / Wind down', type: 'Personal' },
       ],
       Tuesday: [
         { time: '8:00 AM - 9:00 AM', description: 'Wake up, Breakfast, Review Day\'s Plan', type: 'Personal' },
-        
         { time: '11:00 AM - 12:00 PM', description: 'CS504 - Lec 34 (CDROOM-1)', type: 'University' },
         { time: '12:00 PM - 01:00 PM', description: 'MGT501 - Lec 34 (VUTV-1)', type: 'University' },
         { time: '01:00 PM - 02:00 PM', description: 'Lunch & Break', type: 'Personal' },
@@ -225,12 +223,10 @@
         { time: '05:00 PM - 06:00 PM', description: 'STA301 - Lec 34 (VUTV-4)', type: 'University' },
         { time: '06:00 PM - 08:00 PM', description: 'Coursera: MERN eCommerce from Scratch / Meta Social Media Marketing Professional Certificate (Post Intro SMM)', type: 'Coursera', courseId: ['mern-ecommerce', 'meta-smm'] },
         { time: '08:00 PM - 09:00 PM', description: 'Dinner', type: 'Personal' },
-        
         { time: '10:00 PM onwards', description: 'Relax / Wind down', type: 'Personal' },
       ],
       Wednesday: [
         { time: '8:00 AM - 9:00 AM', description: 'Wake up, Breakfast, Review Day\'s Plan', type: 'Personal' },
-        
         { time: '11:00 AM - 12:00 PM', description: 'CS504 - Lec 35 (CDROOM-1)', type: 'University' },
         { time: '12:00 PM - 01:00 PM', description: 'MGT501 - Lec 35 (VUTV-1)', type: 'University' },
         { time: '01:00 PM - 02:00 PM', description: 'Lunch & Break', type: 'Personal' },
@@ -244,7 +240,6 @@
       ],
       Thursday: [
         { time: '8:00 AM - 9:00 AM', description: 'Wake up, Breakfast, Review Day\'s Plan', type: 'Personal' },
-        
         { time: '11:00 AM - 12:00 PM', description: 'Coursera: MERN eCommerce from Scratch', type: 'Coursera', courseId: 'mern-ecommerce' },
         { time: '12:00 PM - 01:00 PM', description: 'Coursera: Backend Development and API Creation', type: 'Coursera', courseId: 'backend-api' },
         { time: '01:00 PM - 02:00 PM', description: 'Lunch & Break', type: 'Personal' },
@@ -257,7 +252,6 @@
       ],
       Friday: [
         { time: '8:00 AM - 9:00 AM', description: 'Wake up, Breakfast, Review Day\'s Plan', type: 'Personal' },
-        
         { time: '10:00 AM - 01:00 PM', description: 'Coursera: MERN Stack Specialization', type: 'Coursera', courseId: 'mern-stack' },
         { time: '01:00 PM - 02:00 PM', description: 'Lunch & Break', type: 'Personal' },
         { time: '02:00 PM - 04:00 PM', description: 'Coursera: Work Smarter with Microsoft Excel', type: 'Coursera', courseId: 'excel' },
@@ -266,10 +260,8 @@
       ],
       Saturday: [
         { time: '8:00 AM - 9:00 AM', description: 'Wake up, Breakfast, Review Day\'s Plan', type: 'Personal' },
-        
         { time: '10:00 AM - 01:00 PM', description: 'Coursera: MERN Stack Specialization', type: 'Coursera', courseId: 'mern-stack' },
         { time: '01:00 PM - 02:00 PM', description: 'Lunch & Break', type: 'Personal' },
-        
         { time: '03:00 PM - 05:00 PM', description: 'Other Diploma Classes', type: 'Diploma' },
         { time: '05:00 PM - 07:00 PM', description: 'Coursera: MERN eCommerce from Scratch', type: 'Coursera', courseId: 'mern-ecommerce' },
         { time: '07:00 PM - 10:00 PM', description: 'Other Diploma Classes', type: 'Diploma' },
@@ -277,7 +269,6 @@
       ],
       Sunday: [
         { time: '8:00 AM - 9:00 AM', description: 'Wake up, Breakfast, Plan Day / Relax', type: 'Personal' },
-        
         { time: '10:00 AM - 02:00 PM', description: 'Coursera: Introduction to Social Media Marketing', type: 'Coursera', courseId: 'intro-smm' },
         { time: '02:00 PM - 03:00 PM', description: 'Lunch & Break', type: 'Personal' },
         { time: '03:00 PM - 06:00 PM', description: 'Coursera: Meta Social Media Marketing Professional Certificate (Post Intro SMM)', type: 'Coursera', courseId: 'meta-smm' },
@@ -285,6 +276,7 @@
       ],
     };
 
+    let userSchedule = {}; // Will store the schedule with IDs and completed status
     let currentDay = 'Monday';
     let currentFilter = 'All';
     let courseraChart;
@@ -306,6 +298,16 @@
       return lines;
     };
 
+    const getTypeIcon = (type) => {
+      switch (type) {
+        case 'University': return '🎓';
+        case 'Coursera': return '💻';
+        case 'Diploma': return '📜';
+        case 'Personal': return '�';
+        default: return '';
+      }
+    };
+
     const updateCourseraChart = () => {
       const activeCoursesHours = {};
       let totalActiveHours = 0;
@@ -325,20 +327,15 @@
         }
       }
 
-      // Add fixed hours for courses that don't change based on completion of others
-      // These are already accounted for in the daily schedule data
-      // For the chart, we primarily want to show the 'active' variable courses.
-      // We will manually add core development hours for visualization consistency
       activeCoursesHours['MERN Stack Front To Back'] = COURSERA_COURSES['mern-stack'].hours;
       activeCoursesHours['MERN eCommerce from Scratch'] = COURSERA_COURSES['mern-ecommerce'].hours;
       activeCoursesHours['Backend Development and API Creation'] = COURSERA_COURSES['backend-api'].hours;
       totalActiveHours = Object.values(activeCoursesHours).reduce((sum, hours) => sum + hours, 0);
 
-
       const labels = Object.keys(activeCoursesHours).map(label => wrapLabel(label, 16));
       const data = Object.values(activeCoursesHours);
       const backgroundColors = [
-        'rgba(0, 173, 181, 0.7)', // accent-dark
+        'rgba(0, 173, 181, 0.7)',
         'rgba(255, 159, 64, 0.7)',
         'rgba(75, 192, 192, 0.7)',
         'rgba(153, 102, 255, 0.7)',
@@ -391,7 +388,7 @@
                   label: function(context) {
                     let label = context.label || '';
                     if (label) {
-                      label = label.replace(/,/g, ' '); // Remove commas from wrapped labels
+                      label = label.replace(/,/g, ' ');
                     }
                     if (context.parsed) {
                       label += ': ' + context.parsed + ' hours';
@@ -435,9 +432,10 @@
           const checkbox = listItem.querySelector('input[type="checkbox"]');
           checkbox.addEventListener('change', (event) => {
             COURSERA_COURSES[key].completed = event.target.checked;
-            renderCourseraCourseList(); // Re-render to update strike-through
-            updateScheduleDisplay(currentDay, currentFilter); // Update schedule based on completion
-            updateCourseraChart(); // Update chart
+            saveStateToLocalStorage();
+            renderCourseraCourseList();
+            updateScheduleDisplay(currentDay, currentFilter);
+            updateCourseraChart();
           });
         } else {
           let dependsOnText = '';
@@ -468,14 +466,13 @@
         conflictNote.classList.add('hidden');
       }
 
-      SCHEDULE_DATA[day].forEach(item => {
-        let isVisible = false;
-
-        // Filter out "University Study Block" if it's explicitly mentioned
+      userSchedule[day].forEach(item => {
+        // Filter out "University Study Block" regardless of filter
         if (item.description.includes('University Study Block')) {
-            return; // Skip this item entirely
+            return;
         }
 
+        let isVisible = false;
         if (filter === 'All') {
           isVisible = true;
         } else if (item.type === filter) {
@@ -495,21 +492,17 @@
                   if (!course.completed) {
                     activeCourseraItem = true;
                     if (item.description.includes('/')) {
-                       // This handles cases like 'MERN eCommerce from Scratch / Meta Social Media Marketing Professional Certificate (Post Intro SMM)'
-                       // If Intro SMM is not complete, display the first part
                        displayDescription = item.description.split('/')[0].trim();
                     }
-                    break; // Found an active intro course, no need to check others for this slot
+                    break;
                   }
                 } else if (course.dependsOn && COURSERA_COURSES[course.dependsOn].completed) {
                   activeCourseraItem = true;
                   if (item.description.includes('/')) {
-                       // If Intro SMM is complete, display the second part
                        displayDescription = item.description.split('/')[1].trim();
                   }
-                  break; // Found an active dependent course
+                  break;
                 } else if (!course.isIntro && !course.dependsOn) {
-                  // Always active core courses
                   activeCourseraItem = true;
                   break;
                 }
@@ -517,17 +510,53 @@
             }
             isVisible = activeCourseraItem;
             if (isVisible) {
-              const listItem = document.createElement('li');
-              listItem.className = 'bg-accent-light p-3 rounded-md shadow-sm';
-              listItem.innerHTML = `<span class="font-semibold">${item.time}:</span> ${displayDescription}`;
-              scheduleList.appendChild(listItem);
+              const taskItem = document.createElement('div');
+              taskItem.className = `flex items-start p-3 rounded-md shadow-sm transition-all duration-200 ${item.completed ? 'bg-task-completed text-gray-500' : 'bg-accent-light'}`;
+              taskItem.innerHTML = `
+                <input type="checkbox" class="flex-shrink-0 mt-1 h-5 w-5 text-primary-cta rounded-sm focus:ring-primary-cta cursor-pointer" data-day="${day}" data-id="${item.id}" ${item.completed ? 'checked' : ''}>
+                <div class="ml-3 flex-grow">
+                  <div class="font-semibold text-sm ${item.completed ? 'line-through' : ''}">
+                    <span class="text-xs text-text-light mr-1">${item.time}</span> ${getTypeIcon(item.type)} ${displayDescription}
+                  </div>
+                </div>
+              `;
+              const checkbox = taskItem.querySelector('input[type="checkbox"]');
+              checkbox.addEventListener('change', (event) => {
+                const day = event.target.dataset.day;
+                const itemId = event.target.dataset.id;
+                const task = userSchedule[day].find(t => t.id === itemId);
+                if (task) {
+                  task.completed = event.target.checked;
+                  saveStateToLocalStorage();
+                  updateScheduleDisplay(currentDay, currentFilter); // Re-render to update UI
+                }
+              });
+              scheduleList.appendChild(taskItem);
             }
           }
         } else if (isVisible) {
-          const listItem = document.createElement('li');
-          listItem.className = 'bg-accent-light p-3 rounded-md shadow-sm';
-          listItem.innerHTML = `<span class="font-semibold">${item.time}:</span> ${item.description}`;
-          scheduleList.appendChild(listItem);
+          const taskItem = document.createElement('div');
+          taskItem.className = `flex items-start p-3 rounded-md shadow-sm transition-all duration-200 ${item.completed ? 'bg-task-completed text-gray-500' : 'bg-accent-light'}`;
+          taskItem.innerHTML = `
+            <input type="checkbox" class="flex-shrink-0 mt-1 h-5 w-5 text-primary-cta rounded-sm focus:ring-primary-cta cursor-pointer" data-day="${day}" data-id="${item.id}" ${item.completed ? 'checked' : ''}>
+            <div class="ml-3 flex-grow">
+              <div class="font-semibold text-sm ${item.completed ? 'line-through' : ''}">
+                <span class="text-xs text-text-light mr-1">${item.time}</span> ${getTypeIcon(item.type)} ${item.description}
+              </div>
+            </div>
+          `;
+          const checkbox = taskItem.querySelector('input[type="checkbox"]');
+          checkbox.addEventListener('change', (event) => {
+            const day = event.target.dataset.day;
+            const itemId = event.target.dataset.id;
+            const task = userSchedule[day].find(t => t.id === itemId);
+            if (task) {
+              task.completed = event.target.checked;
+              saveStateToLocalStorage();
+              updateScheduleDisplay(currentDay, currentFilter);
+            }
+          });
+          scheduleList.appendChild(taskItem);
         }
       });
     };
@@ -542,7 +571,6 @@
           updateScheduleDisplay(currentDay, currentFilter);
         });
       });
-      // Set initial active day
       document.querySelector(`.day-btn[data-day="${currentDay}"]`)?.classList.add('active', 'bg-accent-dark', 'text-white');
     };
 
@@ -551,14 +579,13 @@
       filterButtons.forEach(button => {
         button.addEventListener('click', () => {
           document.querySelector('.filter-btn.active')?.classList.remove('active', 'bg-primary-cta', 'text-white');
-          document.querySelector('.filter-btn.active')?.classList.add('bg-secondary-cta', 'text-primary-cta'); // Revert non-active to default
+          document.querySelector('.filter-btn.active')?.classList.add('bg-secondary-cta', 'text-primary-cta');
           button.classList.add('active', 'bg-primary-cta', 'text-white');
-          button.classList.remove('bg-secondary-cta', 'text-primary-cta'); // Ensure active button is correct color
+          button.classList.remove('bg-secondary-cta', 'text-primary-cta');
           currentFilter = button.dataset.filter;
           updateScheduleDisplay(currentDay, currentFilter);
         });
       });
-      // Set initial active filter
       document.querySelector(`.filter-btn[data-filter="${currentFilter}"]`)?.classList.add('active', 'bg-primary-cta', 'text-white');
     };
 
@@ -575,15 +602,50 @@
       });
     };
 
-    // Initial setup on page load
+    const initializeScheduleData = () => {
+      const storedSchedule = localStorage.getItem('userStudySchedule');
+      if (storedSchedule) {
+        userSchedule = JSON.parse(storedSchedule);
+      } else {
+        userSchedule = {};
+        for (const day in SCHEDULE_DATA_RAW) {
+          userSchedule[day] = SCHEDULE_DATA_RAW[day].map((item, index) => ({
+            ...item,
+            id: `${day.toLowerCase()}-${index}`,
+            completed: false
+          }));
+        }
+        localStorage.setItem('userStudySchedule', JSON.stringify(userSchedule));
+      }
+
+      const storedCourseraCourses = localStorage.getItem('courseraCourses');
+      if (storedCourseraCourses) {
+        const parsedCourses = JSON.parse(storedCourseraCourses);
+        for (const key in parsedCourses) {
+          if (COURSERA_COURSES.hasOwnProperty(key)) {
+            COURSERA_COURSES[key].completed = parsedCourses[key].completed;
+          }
+        }
+      } else {
+        localStorage.setItem('courseraCourses', JSON.stringify(COURSERA_COURSES));
+      }
+    };
+
+    const saveStateToLocalStorage = () => {
+      localStorage.setItem('userStudySchedule', JSON.stringify(userSchedule));
+      localStorage.setItem('courseraCourses', JSON.stringify(COURSERA_COURSES));
+    };
+
     document.addEventListener('DOMContentLoaded', () => {
+      initializeScheduleData();
       renderCourseraCourseList();
       updateCourseraChart();
       setupDayNavigation();
       setupFilterNavigation();
       setupNotesToggle();
-      updateScheduleDisplay(currentDay, currentFilter); // Initial display of Monday's schedule
+      updateScheduleDisplay(currentDay, currentFilter);
     });
   </script>
 </body>
 </html>
+�
