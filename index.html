@@ -3,156 +3,583 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>My Study Schedule</title>
+  <title>My Interactive Study Schedule</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            'neutral-bg': '#FFFBF5',
+            'card-bg': '#FFFFFF',
+            'accent-light': '#D6F6F6',
+            'accent-dark': '#00ADB5',
+            'text-dark': '#333333',
+            'text-light': '#555555',
+            'primary-cta': '#007B80',
+            'secondary-cta': '#E0F2F7',
+            'success-green': '#A7F3D0',
+            'info-blue': '#BFDBFE',
+            'warning-yellow': '#FDE68A',
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      line-height: 1.6;
-      margin: 0;
-      padding: 0;
-      background: #f4f4f4;
+    /* Chosen Palette: Warm and Calm Harmony */
+    /* Application Structure Plan: This SPA is designed with a dashboard-like structure to provide an intuitive overview and detailed daily breakdown of the user's study schedule. It features a main content area for the daily timetable and a dedicated sidebar for Coursera course tracking and a dynamic hour allocation chart. This structure was chosen to separate core scheduling (daily view) from analytical insights (Coursera progress), facilitating easy exploration. Users can navigate days via tabs, filter activities, and dynamically update the schedule by marking Coursera courses as complete, making the "phase" progression clear and interactive. */
+    /* Visualization & Content Choices:
+    - Weekly Coursera Hours Allocation: Goal: Inform, track progress. Viz: Donut Chart (Chart.js, Canvas) to show active course hour distribution, list of Coursera courses with checkboxes. Interaction: Checkboxes for "Introduction to Social Media Marketing" and "Work Smarter with Microsoft Excel" dynamically update the chart and relevant daily schedule entries to reflect course completion and the next "phase." Justification: Provides a quick, interactive visual summary of workload shifts.
+    - Daily Schedule Breakdown: Goal: Organize, inform. Viz: HTML lists within tabbed sections. Interaction: Day-selection buttons to switch views; filter buttons (All, University, Coursera, Diploma) to focus on specific activity types. Justification: Clear, time-ordered presentation with efficient navigation and focused viewing.
+    - Key Notes/Tips: Goal: Inform. Viz: Collapsible HTML section. Interaction: Toggle button to expand/collapse. Justification: Provides important context without cluttering the main interface.
+    - General UI: Goal: Engage, organize. Viz: Tailwind CSS for responsive grid/flex layouts, clean buttons, cards. Unicode characters for icons. Justification: Modern, responsive, and intuitive interface with a calming color scheme. */
+    /* CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. */
+
+    .chart-container {
+      position: relative;
+      width: 100%;
+      max-width: 500px; /* Constrain max width for readability */
+      margin-left: auto;
+      margin-right: auto;
+      height: 300px; /* Base height for chart, adjust responsiveness in JS or Tailwind */
+      max-height: 400px; /* Max height to prevent excessive vertical space */
     }
-    header {
-      background: #333;
-      color: #fff;
-      padding: 1rem;
+    @media (min-width: 640px) { /* sm breakpoint */
+      .chart-container {
+        height: 350px;
+      }
+    }
+    @media (min-width: 1024px) { /* lg breakpoint */
+      .chart-container {
+        height: 400px;
+      }
+    }
+    .tooltip-icon {
+      display: inline-block;
+      width: 1.25em;
+      height: 1.25em;
       text-align: center;
-    }
-    .container {
-      padding: 20px;
-    }
-    h2 {
-      background: #005f73;
-      color: white;
-      padding: 10px;
-      border-radius: 5px;
-    }
-    .day-schedule {
-      background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      padding: 10px;
-      margin-bottom: 20px;
-    }
-    .tips {
-      background: #e0fbfc;
-      padding: 15px;
-      border-radius: 5px;
-      margin-top: 20px;
-    }
-    ul {
-      margin: 0;
-      padding-left: 20px;
+      line-height: 1.25em;
+      border-radius: 9999px; /* Tailwind's rounded-full */
+      background-color: #BFDBFE; /* info-blue */
+      color: #1E40AF; /* Darker blue text */
+      font-weight: bold;
+      cursor: help;
+      margin-left: 0.5rem;
+      font-size: 0.8em;
     }
   </style>
 </head>
-<body>
-  <header>
-    <h1>My Weekly Study Schedule</h1>
+<body class="font-sans bg-neutral-bg text-text-dark min-h-screen flex flex-col">
+
+  <header class="bg-primary-cta text-white p-4 shadow-md">
+    <div class="container mx-auto px-4 py-2 flex items-center justify-between">
+      <h1 class="text-2xl font-bold tracking-tight">My Interactive Study Schedule</h1>
+      <div class="relative group">
+        <span class="tooltip-icon">i</span>
+        <div class="absolute right-0 mt-2 w-64 p-3 bg-white text-text-dark text-sm rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-50">
+          This application helps you manage your university lectures, diploma classes, and Coursera courses. Mark Coursera courses as complete to update your schedule and see workload shifts.
+        </div>
+      </div>
+    </div>
   </header>
-  <div class="container">
-    <p><strong>Note:</strong> This schedule helps manage university lectures, diploma classes, and Coursera courses effectively.</p>
 
-    <h2>Weekly Overview</h2>
-    <ul>
-      <li><strong>University Courses:</strong> CS504, MGT501, MCM301, STA301</li>
-      <li><strong>Diploma Classes:</strong> Scheduled Tuesday, Thursday, Saturday</li>
-      <li><strong>Coursera Courses:</strong> MERN Stack, Excel, Social Media, etc.</li>
-      <li><strong>Estimated Weekly Hours:</strong> ~27 hours for Coursera</li>
-    </ul>
+  <main class="container mx-auto px-4 py-8 flex-grow grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-    <h2>Daily Schedule</h2>
+    <!-- Coursera Overview & Tracker Section -->
+    <section class="lg:col-span-1 bg-card-bg p-6 rounded-lg shadow-md flex flex-col">
+      <h2 class="text-xl font-semibold mb-4 text-accent-dark">Coursera Overview & Tracker</h2>
+      <p class="mb-4 text-sm text-text-light">
+        Track your Coursera course progress and see how completing introductory courses shifts your focus to longer professional certificates. Check a course as 'Completed' to update your schedule and the weekly hours chart.
+      </p>
 
-    <div class="day-schedule">
-      <h3>Monday</h3>
-      <ul>
-        <li>9:00 AM - 11:00 AM: University Study Block</li>
-        <li>11:00 AM - 1:00 PM: CS504 & MGT501 Lectures</li>
-        <li>2:00 PM - 4:00 PM: Coursera: MERN Stack</li>
-        <li>4:00 PM - 6:00 PM: MCM301 & STA301 Lectures</li>
-        <li>6:00 PM - 8:00 PM: Coursera: Intro to Social Media Marketing</li>
-        <li>9:00 PM - 10:00 PM: University Study Block</li>
-      </ul>
-    </div>
+      <div class="flex-grow flex flex-col items-center justify-center mb-6">
+        <div class="chart-container">
+          <canvas id="courseraHoursChart"></canvas>
+        </div>
+        <p class="text-sm text-center mt-2 text-text-light">
+          Current weekly Coursera hours allocation.
+        </p>
+      </div>
 
-    <div class="day-schedule">
-      <h3>Tuesday</h3>
-      <ul>
-        <li>9:00 AM - 11:00 AM: University Study Block</li>
-        <li>11:00 AM - 1:00 PM: CS504 & MGT501 Lectures</li>
-        <li>2:00 PM - 3:00 PM: Coursera: MERN eCommerce</li>
-        <li>3:00 PM - 5:00 PM: Diploma Classes</li>
-        <li>5:00 PM - 6:00 PM: STA301 Lecture</li>
-        <li>6:00 PM - 8:00 PM: Coursera: eCommerce / Meta SMM</li>
-        <li>9:00 PM - 10:00 PM: University Study Block</li>
-      </ul>
-    </div>
+      <div class="mt-auto">
+        <h3 class="text-lg font-medium mb-3 text-accent-dark">Coursera Courses</h3>
+        <ul id="coursera-course-list" class="space-y-2 text-sm">
+          <!-- Courses will be dynamically loaded here -->
+        </ul>
+        <div id="total-coursera-hours" class="mt-4 p-3 bg-secondary-cta rounded-md text-primary-cta font-semibold">
+          Total Active Coursera Hours: <span id="active-hours-display">0</span> hours/week
+        </div>
+      </div>
+    </section>
 
-    <div class="day-schedule">
-      <h3>Wednesday</h3>
-      <ul>
-        <li>9:00 AM - 11:00 AM: University Study Block</li>
-        <li>11:00 AM - 1:00 PM: CS504 & MGT501 Lectures</li>
-        <li>2:00 PM - 4:00 PM: Coursera: MERN Stack</li>
-        <li>4:00 PM - 5:00 PM: Coursera: Excel</li>
-        <li>5:00 PM - 7:00 PM: MCM301 & STA301 Lectures</li>
-        <li>7:00 PM - 9:00 PM: Coursera: Meta SMM</li>
-      </ul>
-    </div>
+    <!-- Daily Schedule Section -->
+    <section class="lg:col-span-2 bg-card-bg p-6 rounded-lg shadow-md flex flex-col">
+      <h2 class="text-xl font-semibold mb-4 text-accent-dark">Daily Schedule</h2>
+      <p class="mb-4 text-sm text-text-light">
+        Select a day to view its detailed schedule. Use the filters to focus on specific types of activities.
+      </p>
 
-    <div class="day-schedule">
-      <h3>Thursday</h3>
-      <ul>
-        <li>9:00 AM - 11:00 AM: University Study Block</li>
-        <li>11:00 AM - 1:00 PM: Coursera: eCommerce & Backend APIs</li>
-        <li>2:00 PM - 3:00 PM: Coursera: eCommerce</li>
-        <li>3:00 PM - 5:00 PM: Diploma Classes</li>
-        <li>5:00 PM - 7:00 PM: Coursera: Excel</li>
-        <li>7:00 PM - 9:00 PM: Coursera: Meta SMM</li>
-      </ul>
-    </div>
+      <!-- Day Navigation -->
+      <div class="flex flex-wrap gap-2 mb-4" id="day-nav">
+        <button class="day-btn px-4 py-2 rounded-full bg-secondary-cta text-primary-cta font-medium hover:bg-accent-light transition-colors active:bg-accent-dark active:text-white" data-day="Monday">Mon</button>
+        <button class="day-btn px-4 py-2 rounded-full bg-secondary-cta text-primary-cta font-medium hover:bg-accent-light transition-colors" data-day="Tuesday">Tue</button>
+        <button class="day-btn px-4 py-2 rounded-full bg-secondary-cta text-primary-cta font-medium hover:bg-accent-light transition-colors" data-day="Wednesday">Wed</button>
+        <button class="day-btn px-4 py-2 rounded-full bg-secondary-cta text-primary-cta font-medium hover:bg-accent-light transition-colors" data-day="Thursday">Thu</button>
+        <button class="day-btn px-4 py-2 rounded-full bg-secondary-cta text-primary-cta font-medium hover:bg-accent-light transition-colors" data-day="Friday">Fri</button>
+        <button class="day-btn px-4 py-2 rounded-full bg-secondary-cta text-primary-cta font-medium hover:bg-accent-light transition-colors" data-day="Saturday">Sat</button>
+        <button class="day-btn px-4 py-2 rounded-full bg-secondary-cta text-primary-cta font-medium hover:bg-accent-light transition-colors" data-day="Sunday">Sun</button>
+      </div>
 
-    <div class="day-schedule">
-      <h3>Friday</h3>
-      <ul>
-        <li>9:00 AM - 10:00 AM: Weekly Review</li>
-        <li>10:00 AM - 1:00 PM: Coursera: MERN Stack</li>
-        <li>2:00 PM - 4:00 PM: Coursera: Excel</li>
-        <li>4:00 PM - 7:00 PM: Coursera: Meta SMM</li>
-      </ul>
-    </div>
+      <!-- Activity Type Filter -->
+      <div class="flex flex-wrap gap-2 mb-6" id="filter-nav">
+        <button class="filter-btn px-4 py-2 rounded-full bg-primary-cta text-white font-medium hover:bg-primary-cta/90 transition-colors active:scale-95" data-filter="All">All</button>
+        <button class="filter-btn px-4 py-2 rounded-full bg-secondary-cta text-primary-cta font-medium hover:bg-accent-light transition-colors" data-filter="University">University</button>
+        <button class="filter-btn px-4 py-2 rounded-full bg-secondary-cta text-primary-cta font-medium hover:bg-accent-light transition-colors" data-filter="Coursera">Coursera</button>
+        <button class="filter-btn px-4 py-2 rounded-full bg-secondary-cta text-primary-cta font-medium hover:bg-accent-light transition-colors" data-filter="Diploma">Diploma</button>
+        <button class="filter-btn px-4 py-2 rounded-full bg-secondary-cta text-primary-cta font-medium hover:bg-accent-light transition-colors" data-filter="Personal">Personal</button>
+      </div>
 
-    <div class="day-schedule">
-      <h3>Saturday</h3>
-      <ul>
-        <li>9:00 AM - 10:00 AM: Weekly Review</li>
-        <li>10:00 AM - 1:00 PM: Coursera: MERN Stack</li>
-        <li>2:00 PM - 3:00 PM: University Catch-up</li>
-        <li>3:00 PM - 5:00 PM: Diploma Classes</li>
-        <li>5:00 PM - 7:00 PM: Coursera: MERN eCommerce</li>
-        <li>7:00 PM - 10:00 PM: Diploma Classes</li>
-      </ul>
-    </div>
+      <!-- Schedule Display Area -->
+      <div id="schedule-display" class="flex-grow min-h-[300px] overflow-auto">
+        <h3 id="current-day-title" class="text-lg font-medium mb-3 text-accent-dark">Monday's Schedule</h3>
+        <ul id="day-schedule-list" class="space-y-3">
+          <!-- Schedule items will be dynamically loaded here -->
+        </ul>
+        <div id="conflict-note" class="hidden mt-4 p-3 bg-warning-yellow rounded-md text-orange-800 text-sm">
+            <span class="font-bold">Important Note for Tuesday:</span> Your MCM301 lecture (4:00 PM - 5:00 PM) conflicts with "Other Diploma Classes" (3:00 PM - 5:00 PM). Diploma Classes are prioritized here; you may need to catch up on MCM301 content independently.
+        </div>
+      </div>
+    </section>
 
-    <div class="day-schedule">
-      <h3>Sunday</h3>
-      <ul>
-        <li>9:00 AM - 10:00 AM: Weekly Prep</li>
-        <li>10:00 AM - 2:00 PM: Coursera: Intro to Social Media Marketing</li>
-        <li>3:00 PM - 6:00 PM: Coursera: Meta SMM</li>
-      </ul>
-    </div>
+    <!-- General Notes & Study Tips Section -->
+    <section class="lg:col-span-3 bg-card-bg p-6 rounded-lg shadow-md mt-8">
+      <h2 class="text-xl font-semibold mb-4 text-accent-dark flex items-center justify-between">
+        Important Notes & Study Tips
+        <button id="toggle-notes" class="px-3 py-1 bg-secondary-cta text-primary-cta text-sm rounded-full hover:bg-accent-light transition-colors">Show</button>
+      </h2>
+      <div id="notes-content" class="hidden text-sm text-text-light">
+        <h3 class="font-medium mb-2 text-base">Key Assumptions & Notes:</h3>
+        <ul class="list-disc list-inside space-y-1 mb-4">
+          <li><strong>Lecture Conflicts:</strong> On Tuesdays, your MCM301 lecture (4:00 PM - 5:00 PM) conflicts with your "Other Diploma Classes" (3:00 PM - 5:00 PM). Diploma Classes are prioritized; you may need to watch recordings or review independently for MCM301.</li>
+          <li><strong>University Study Blocks:</strong> Use these for reviewing lecture material, working on assignments, or pre-reading for main university courses.</li>
+          <li><strong>Breaks are Crucial:</strong> Short breaks (5-15 minutes) are built into the schedule. Take longer breaks when needed.</li>
+          <li><strong>Flexibility:</strong> This is a template. Adjust it based on your energy levels, specific deadlines, and unforeseen circumstances. Consistency is more important than strict adherence.</li>
+          <li><strong>Sleep:</strong> Aim for consistent sleep to maximize your learning and productivity.</li>
+        </ul>
 
-    <h2>Study Tips</h2>
-    <div class="tips">
-      <ul>
-        <li>Take breaks and avoid burnout.</li>
-        <li>Use active recall and spaced repetition techniques.</li>
-        <li>Stay hydrated, sleep well, and eat balanced meals.</li>
-        <li>Be flexible and adapt the schedule based on your progress.</li>
-        <li>Reward yourself for consistency and progress.</li>
-      </ul>
-    </div>
-  </div>
+        <h3 class="font-medium mb-2 text-base">Tips for Success:</h3>
+        <ul class="list-disc list-inside space-y-1">
+          <li><strong>Be Flexible and Adapt:</strong> If you're burnt out, take a longer break. If a topic is challenging, dedicate more time.</li>
+          <li><strong>Active Recall & Spaced Repetition:</strong> Don't just passively consume content. Test yourself frequently and revisit topics at increasing intervals.</li>
+          <li><strong>Manage Distractions:</strong> Create a dedicated study environment and minimize distractions.</li>
+          <li><strong>Stay Hydrated and Eat Well:</strong> Fuel your brain effectively.</li>
+          <li><strong>Get Enough Sleep:</strong> Essential for memory consolidation and overall well-being.</li>
+          <li><strong>Reward Yourself:</strong> Acknowledge your hard work and take time to do things you enjoy.</li>
+        </ul>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    const COURSERA_COURSES = {
+      'mern-stack': { name: 'MERN Stack Front To Back', hours: 10, completed: false, type: 'Coursera Dev' },
+      'mern-ecommerce': { name: 'MERN eCommerce from Scratch', hours: 6, completed: false, type: 'Coursera Dev' },
+      'backend-api': { name: 'Backend Development and API Creation', hours: 1, completed: false, type: 'Coursera Dev' },
+      'intro-smm': { name: 'Introduction to Social Media Marketing', hours: 6, completed: false, type: 'Coursera Marketing', isIntro: true, unlocks: 'meta-smm' },
+      'excel': { name: 'Work Smarter with Microsoft Excel', hours: 4, completed: false, type: 'Coursera Other', isIntro: true, unlocks: 'meta-analytics' },
+      'meta-smm': { name: 'Meta Social Media Marketing Professional Certificate', hours: 10, completed: false, type: 'Coursera Marketing', initialHours: 0, dependsOn: 'intro-smm' },
+      'meta-analytics': { name: 'Meta Marketing Analytics Professional Certificate', hours: 10, completed: false, type: 'Coursera Analytics', initialHours: 0, dependsOn: 'excel' },
+    };
+
+    const SCHEDULE_DATA = {
+      Monday: [
+        { time: '8:00 AM - 9:00 AM', description: 'Wake up, Breakfast, Review Day\'s Plan', type: 'Personal' },
+        { time: '9:00 AM - 11:00 AM', description: 'University Study Block (CS504 / MGT501 prep, assignment work)', type: 'University' },
+        { time: '11:00 AM - 12:00 PM', description: 'CS504 - Lec 33 (CDROOM-1)', type: 'University' },
+        { time: '12:00 PM - 01:00 PM', description: 'MGT501 - Lec 33 (VUTV-1)', type: 'University' },
+        { time: '01:00 PM - 02:00 PM', description: 'Lunch & Break', type: 'Personal' },
+        { time: '02:00 PM - 04:00 PM', description: 'Coursera: MERN Stack Specialization', type: 'Coursera', courseId: 'mern-stack' },
+        { time: '04:00 PM - 05:00 PM', description: 'MCM301 - Lec 33 (CDROOM-8)', type: 'University' },
+        { time: '05:00 PM - 06:00 PM', description: 'STA301 - Lec 33 (VUTV-4)', type: 'University' },
+        { time: '06:00 PM - 08:00 PM', description: 'Coursera: Introduction to Social Media Marketing', type: 'Coursera', courseId: 'intro-smm' },
+        { time: '08:00 PM - 09:00 PM', description: 'Dinner', type: 'Personal' },
+        { time: '09:00 PM - 10:00 PM', description: 'University Study Block (MCM301 / STA301 review)', type: 'University' },
+        { time: '10:00 PM onwards', description: 'Relax / Wind down', type: 'Personal' },
+      ],
+      Tuesday: [
+        { time: '8:00 AM - 9:00 AM', description: 'Wake up, Breakfast, Review Day\'s Plan', type: 'Personal' },
+        { time: '9:00 AM - 11:00 AM', description: 'University Study Block (CS504 / MGT501 prep, assignment work)', type: 'University' },
+        { time: '11:00 AM - 12:00 PM', description: 'CS504 - Lec 34 (CDROOM-1)', type: 'University' },
+        { time: '12:00 PM - 01:00 PM', description: 'MGT501 - Lec 34 (VUTV-1)', type: 'University' },
+        { time: '01:00 PM - 02:00 PM', description: 'Lunch & Break', type: 'Personal' },
+        { time: '02:00 PM - 03:00 PM', description: 'Coursera: MERN eCommerce from Scratch', type: 'Coursera', courseId: 'mern-ecommerce' },
+        { time: '03:00 PM - 05:00 PM', description: 'Other Diploma Classes', type: 'Diploma', conflict: true },
+        { time: '05:00 PM - 06:00 PM', description: 'STA301 - Lec 34 (VUTV-4)', type: 'University' },
+        { time: '06:00 PM - 08:00 PM', description: 'Coursera: MERN eCommerce from Scratch / Meta Social Media Marketing Professional Certificate (Post Intro SMM)', type: 'Coursera', courseId: ['mern-ecommerce', 'meta-smm'] },
+        { time: '08:00 PM - 09:00 PM', description: 'Dinner', type: 'Personal' },
+        { time: '09:00 PM - 10:00 PM', description: 'University Study Block (STA301 review, catch up on MCM301)', type: 'University' },
+        { time: '10:00 PM onwards', description: 'Relax / Wind down', type: 'Personal' },
+      ],
+      Wednesday: [
+        { time: '8:00 AM - 9:00 AM', description: 'Wake up, Breakfast, Review Day\'s Plan', type: 'Personal' },
+        { time: '9:00 AM - 11:00 AM', description: 'University Study Block (CS504 / MGT501 prep, assignment work)', type: 'University' },
+        { time: '11:00 AM - 12:00 PM', description: 'CS504 - Lec 35 (CDROOM-1)', type: 'University' },
+        { time: '12:00 PM - 01:00 PM', description: 'MGT501 - Lec 35 (VUTV-1)', type: 'University' },
+        { time: '01:00 PM - 02:00 PM', description: 'Lunch & Break', type: 'Personal' },
+        { time: '02:00 PM - 04:00 PM', description: 'Coursera: MERN Stack Specialization', type: 'Coursera', courseId: 'mern-stack' },
+        { time: '04:00 PM - 05:00 PM', description: 'Coursera: Work Smarter with Microsoft Excel', type: 'Coursera', courseId: 'excel' },
+        { time: '05:00 PM - 06:00 PM', description: 'MCM301 - Lec 35 (CDROOM-8)', type: 'University' },
+        { time: '06:00 PM - 07:00 PM', description: 'STA301 - Lec 35 (VUTV-4)', type: 'University' },
+        { time: '07:00 PM - 09:00 PM', description: 'Coursera: Meta Social Media Marketing Professional Certificate (Post Intro SMM)', type: 'Coursera', courseId: 'meta-smm' },
+        { time: '09:00 PM - 10:00 PM', description: 'Dinner / University Study Block', type: 'Personal' },
+        { time: '10:00 PM onwards', description: 'Relax / Wind down', type: 'Personal' },
+      ],
+      Thursday: [
+        { time: '8:00 AM - 9:00 AM', description: 'Wake up, Breakfast, Review Day\'s Plan', type: 'Personal' },
+        { time: '9:00 AM - 11:00 AM', description: 'University Study Block (catch up, review past lectures, assignments)', type: 'University' },
+        { time: '11:00 AM - 12:00 PM', description: 'Coursera: MERN eCommerce from Scratch', type: 'Coursera', courseId: 'mern-ecommerce' },
+        { time: '12:00 PM - 01:00 PM', description: 'Coursera: Backend Development and API Creation', type: 'Coursera', courseId: 'backend-api' },
+        { time: '01:00 PM - 02:00 PM', description: 'Lunch & Break', type: 'Personal' },
+        { time: '02:00 PM - 03:00 PM', description: 'Coursera: MERN eCommerce from Scratch', type: 'Coursera', courseId: 'mern-ecommerce' },
+        { time: '03:00 PM - 05:00 PM', description: 'Other Diploma Classes', type: 'Diploma' },
+        { time: '05:00 PM - 07:00 PM', description: 'Coursera: Work Smarter with Microsoft Excel', type: 'Coursera', courseId: 'excel' },
+        { time: '07:00 PM - 09:00 PM', description: 'Coursera: Meta Social Media Marketing Professional Certificate (Post Intro SMM)', type: 'Coursera', courseId: 'meta-smm' },
+        { time: '09:00 PM - 10:00 PM', description: 'Dinner / University Study Block', type: 'Personal' },
+        { time: '10:00 PM onwards', description: 'Relax / Wind down', type: 'Personal' },
+      ],
+      Friday: [
+        { time: '8:00 AM - 9:00 AM', description: 'Wake up, Breakfast, Review Day\'s Plan', type: 'Personal' },
+        { time: '9:00 AM - 10:00 AM', description: 'University Study Block (pre-read for next week, weekly review)', type: 'University' },
+        { time: '10:00 AM - 01:00 PM', description: 'Coursera: MERN Stack Specialization', type: 'Coursera', courseId: 'mern-stack' },
+        { time: '01:00 PM - 02:00 PM', description: 'Lunch & Break', type: 'Personal' },
+        { time: '02:00 PM - 04:00 PM', description: 'Coursera: Work Smarter with Microsoft Excel', type: 'Coursera', courseId: 'excel' },
+        { time: '04:00 PM - 07:00 PM', description: 'Coursera: Meta Social Media Marketing Professional Certificate (Post Intro SMM)', type: 'Coursera', courseId: 'meta-smm' },
+        { time: '07:00 PM onwards', description: 'Free Time / Hobbies / Social activities', type: 'Personal' },
+      ],
+      Saturday: [
+        { time: '8:00 AM - 9:00 AM', description: 'Wake up, Breakfast, Review Day\'s Plan', type: 'Personal' },
+        { time: '9:00 AM - 10:00 AM', description: 'University Study Block (Weekly review, plan for upcoming week)', type: 'University' },
+        { time: '10:00 AM - 01:00 PM', description: 'Coursera: MERN Stack Specialization', type: 'Coursera', courseId: 'mern-stack' },
+        { time: '01:00 PM - 02:00 PM', description: 'Lunch & Break', type: 'Personal' },
+        { time: '02:00 PM - 03:00 PM', description: 'University Study Block / Catch up', type: 'University' },
+        { time: '03:00 PM - 05:00 PM', description: 'Other Diploma Classes', type: 'Diploma' },
+        { time: '05:00 PM - 07:00 PM', description: 'Coursera: MERN eCommerce from Scratch', type: 'Coursera', courseId: 'mern-ecommerce' },
+        { time: '07:00 PM - 10:00 PM', description: 'Other Diploma Classes', type: 'Diploma' },
+        { time: '10:00 PM onwards', description: 'Dinner / Free Time', type: 'Personal' },
+      ],
+      Sunday: [
+        { time: '8:00 AM - 9:00 AM', description: 'Wake up, Breakfast, Plan Day / Relax', type: 'Personal' },
+        { time: '9:00 AM - 10:00 AM', description: 'University Weekly Review / Prep for Monday', type: 'University' },
+        { time: '10:00 AM - 02:00 PM', description: 'Coursera: Introduction to Social Media Marketing', type: 'Coursera', courseId: 'intro-smm' },
+        { time: '02:00 PM - 03:00 PM', description: 'Lunch & Break', type: 'Personal' },
+        { time: '03:00 PM - 06:00 PM', description: 'Coursera: Meta Social Media Marketing Professional Certificate (Post Intro SMM)', type: 'Coursera', courseId: 'meta-smm' },
+        { time: '06:00 PM onwards', description: 'Relax / Hobbies / Prepare for the week ahead', type: 'Personal' },
+      ],
+    };
+
+    let currentDay = 'Monday';
+    let currentFilter = 'All';
+    let courseraChart;
+
+    const wrapLabel = (label, maxLength) => {
+      const words = label.split(' ');
+      let line = '';
+      let lines = [];
+      for (let i = 0; i < words.length; i++) {
+        const testLine = line === '' ? words[i] : line + ' ' + words[i];
+        if (testLine.length > maxLength && i > 0) {
+          lines.push(line);
+          line = words[i];
+        } else {
+          line = testLine;
+        }
+      }
+      lines.push(line);
+      return lines;
+    };
+
+    const updateCourseraChart = () => {
+      const activeCoursesHours = {};
+      let totalActiveHours = 0;
+
+      for (const key in COURSERA_COURSES) {
+        const course = COURSERA_COURSES[key];
+        if (course.isIntro) {
+          if (!course.completed) {
+            if (!activeCoursesHours[course.name]) activeCoursesHours[course.name] = 0;
+            activeCoursesHours[course.name] += course.hours;
+            totalActiveHours += course.hours;
+          }
+        } else if (!course.dependsOn || (course.dependsOn && COURSERA_COURSES[course.dependsOn].completed)) {
+          if (!activeCoursesHours[course.name]) activeCoursesHours[course.name] = 0;
+          activeCoursesHours[course.name] += course.hours;
+          totalActiveHours += course.hours;
+        }
+      }
+
+      // Add fixed hours for courses that don't change based on completion of others
+      // These are already accounted for in the daily schedule data
+      // For the chart, we primarily want to show the 'active' variable courses.
+      // We will manually add core development hours for visualization consistency
+      activeCoursesHours['MERN Stack Front To Back'] = COURSERA_COURSES['mern-stack'].hours;
+      activeCoursesHours['MERN eCommerce from Scratch'] = COURSERA_COURSES['mern-ecommerce'].hours;
+      activeCoursesHours['Backend Development and API Creation'] = COURSERA_COURSES['backend-api'].hours;
+      totalActiveHours = Object.values(activeCoursesHours).reduce((sum, hours) => sum + hours, 0);
+
+
+      const labels = Object.keys(activeCoursesHours).map(label => wrapLabel(label, 16));
+      const data = Object.values(activeCoursesHours);
+      const backgroundColors = [
+        'rgba(0, 173, 181, 0.7)', // accent-dark
+        'rgba(255, 159, 64, 0.7)',
+        'rgba(75, 192, 192, 0.7)',
+        'rgba(153, 102, 255, 0.7)',
+        'rgba(255, 99, 132, 0.7)',
+        'rgba(54, 162, 235, 0.7)',
+        'rgba(201, 203, 207, 0.7)'
+      ];
+      const borderColors = [
+        'rgba(0, 173, 181, 1)',
+        'rgba(255, 159, 64, 1)',
+        'rgba(75, 192, 192, 1)',
+        'rgba(153, 102, 255, 1)',
+        'rgba(255, 99, 132, 1)',
+        'rgba(54, 162, 235, 1)',
+        'rgba(201, 203, 207, 1)'
+      ];
+
+      if (courseraChart) {
+        courseraChart.data.labels = labels;
+        courseraChart.data.datasets[0].data = data;
+        courseraChart.update();
+      } else {
+        const ctx = document.getElementById('courseraHoursChart').getContext('2d');
+        courseraChart = new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: labels,
+            datasets: [{
+              data: data,
+              backgroundColor: backgroundColors,
+              borderColor: borderColors,
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'right',
+                labels: {
+                  font: {
+                    size: 12
+                  },
+                  boxWidth: 20
+                }
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    let label = context.label || '';
+                    if (label) {
+                      label = label.replace(/,/g, ' '); // Remove commas from wrapped labels
+                    }
+                    if (context.parsed) {
+                      label += ': ' + context.parsed + ' hours';
+                    }
+                    return label;
+                  }
+                }
+              },
+              title: {
+                display: true,
+                text: 'Weekly Coursera Hours Distribution',
+                font: {
+                  size: 16,
+                  weight: 'bold'
+                },
+                padding: {
+                  top: 10,
+                  bottom: 10
+                }
+              }
+            }
+          }
+        });
+      }
+      document.getElementById('active-hours-display').textContent = totalActiveHours;
+    };
+
+    const renderCourseraCourseList = () => {
+      const listElement = document.getElementById('coursera-course-list');
+      listElement.innerHTML = '';
+      for (const key in COURSERA_COURSES) {
+        const course = COURSERA_COURSES[key];
+        const listItem = document.createElement('li');
+        if (course.isIntro) {
+          listItem.innerHTML = `
+            <label class="inline-flex items-center cursor-pointer">
+              <input type="checkbox" class="form-checkbox h-4 w-4 text-primary-cta rounded-sm focus:ring-primary-cta" data-course-id="${key}" ${course.completed ? 'checked' : ''}>
+              <span class="ml-2 text-text-dark ${course.completed ? 'line-through text-gray-500' : ''}">${course.name} (${course.hours} hrs/week)</span>
+            </label>
+          `;
+          const checkbox = listItem.querySelector('input[type="checkbox"]');
+          checkbox.addEventListener('change', (event) => {
+            COURSERA_COURSES[key].completed = event.target.checked;
+            renderCourseraCourseList(); // Re-render to update strike-through
+            updateScheduleDisplay(currentDay, currentFilter); // Update schedule based on completion
+            updateCourseraChart(); // Update chart
+          });
+        } else {
+          let dependsOnText = '';
+          if (course.dependsOn) {
+            const dependsOnCourse = COURSERA_COURSES[course.dependsOn];
+            if (!dependsOnCourse.completed) {
+              dependsOnText = `<span class="ml-2 text-xs text-orange-600">(Unlocks after ${dependsOnCourse.name})</span>`;
+            }
+          }
+          listItem.innerHTML = `
+            <span class="text-text-dark">${course.name} (${course.hours} hrs/week)</span>
+            ${dependsOnText}
+          `;
+        }
+        listElement.appendChild(listItem);
+      }
+    };
+
+    const updateScheduleDisplay = (day, filter) => {
+      const scheduleList = document.getElementById('day-schedule-list');
+      const conflictNote = document.getElementById('conflict-note');
+      scheduleList.innerHTML = '';
+      document.getElementById('current-day-title').textContent = `${day}'s Schedule`;
+
+      if (day === 'Tuesday' && conflictNote) {
+        conflictNote.classList.remove('hidden');
+      } else if (conflictNote) {
+        conflictNote.classList.add('hidden');
+      }
+
+      SCHEDULE_DATA[day].forEach(item => {
+        let isVisible = false;
+
+        if (filter === 'All') {
+          isVisible = true;
+        } else if (item.type === filter) {
+          isVisible = true;
+        }
+
+        if (item.type === 'Coursera' && isVisible) {
+          if (item.courseId) {
+            const courseIds = Array.isArray(item.courseId) ? item.courseId : [item.courseId];
+            let activeCourseraItem = false;
+            let displayDescription = item.description;
+
+            for (const cId of courseIds) {
+              const course = COURSERA_COURSES[cId];
+              if (course) {
+                if (course.isIntro) {
+                  if (!course.completed) {
+                    activeCourseraItem = true;
+                    if (item.description.includes('/')) {
+                       // This handles cases like 'MERN eCommerce from Scratch / Meta Social Media Marketing Professional Certificate (Post Intro SMM)'
+                       // If Intro SMM is not complete, display the first part
+                       displayDescription = item.description.split('/')[0].trim();
+                    }
+                    break; // Found an active intro course, no need to check others for this slot
+                  }
+                } else if (course.dependsOn && COURSERA_COURSES[course.dependsOn].completed) {
+                  activeCourseraItem = true;
+                  if (item.description.includes('/')) {
+                       // If Intro SMM is complete, display the second part
+                       displayDescription = item.description.split('/')[1].trim();
+                  }
+                  break; // Found an active dependent course
+                } else if (!course.isIntro && !course.dependsOn) {
+                  // Always active core courses
+                  activeCourseraItem = true;
+                  break;
+                }
+              }
+            }
+            isVisible = activeCourseraItem;
+            if (isVisible) {
+              const listItem = document.createElement('li');
+              listItem.className = 'bg-accent-light p-3 rounded-md shadow-sm';
+              listItem.innerHTML = `<span class="font-semibold">${item.time}:</span> ${displayDescription}`;
+              scheduleList.appendChild(listItem);
+            }
+          }
+        } else if (isVisible) {
+          const listItem = document.createElement('li');
+          listItem.className = 'bg-accent-light p-3 rounded-md shadow-sm';
+          listItem.innerHTML = `<span class="font-semibold">${item.time}:</span> ${item.description}`;
+          scheduleList.appendChild(listItem);
+        }
+      });
+    };
+
+    const setupDayNavigation = () => {
+      const dayButtons = document.querySelectorAll('.day-btn');
+      dayButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          document.querySelector('.day-btn.active')?.classList.remove('active', 'bg-accent-dark', 'text-white');
+          button.classList.add('active', 'bg-accent-dark', 'text-white');
+          currentDay = button.dataset.day;
+          updateScheduleDisplay(currentDay, currentFilter);
+        });
+      });
+      // Set initial active day
+      document.querySelector(`.day-btn[data-day="${currentDay}"]`)?.classList.add('active', 'bg-accent-dark', 'text-white');
+    };
+
+    const setupFilterNavigation = () => {
+      const filterButtons = document.querySelectorAll('.filter-btn');
+      filterButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          document.querySelector('.filter-btn.active')?.classList.remove('active', 'bg-primary-cta', 'text-white');
+          document.querySelector('.filter-btn.active')?.classList.add('bg-secondary-cta', 'text-primary-cta'); // Revert non-active to default
+          button.classList.add('active', 'bg-primary-cta', 'text-white');
+          button.classList.remove('bg-secondary-cta', 'text-primary-cta'); // Ensure active button is correct color
+          currentFilter = button.dataset.filter;
+          updateScheduleDisplay(currentDay, currentFilter);
+        });
+      });
+      // Set initial active filter
+      document.querySelector(`.filter-btn[data-filter="${currentFilter}"]`)?.classList.add('active', 'bg-primary-cta', 'text-white');
+    };
+
+    const setupNotesToggle = () => {
+      const toggleButton = document.getElementById('toggle-notes');
+      const notesContent = document.getElementById('notes-content');
+      toggleButton.addEventListener('click', () => {
+        notesContent.classList.toggle('hidden');
+        if (notesContent.classList.contains('hidden')) {
+          toggleButton.textContent = 'Show';
+        } else {
+          toggleButton.textContent = 'Hide';
+        }
+      });
+    };
+
+    // Initial setup on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      renderCourseraCourseList();
+      updateCourseraChart();
+      setupDayNavigation();
+      setupFilterNavigation();
+      setupNotesToggle();
+      updateScheduleDisplay(currentDay, currentFilter); // Initial display of Monday's schedule
+    });
+  </script>
 </body>
 </html>
